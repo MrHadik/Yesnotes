@@ -71,13 +71,13 @@ router.post(
       var data = await User.find({email: req.body.email });
       const pss = data[0].passwd;
         
-      const passcom = await bcrypt.compare(req.body.passwd,pss );
+      const passcom = await bcrypt.compare(req.body.passwd, pss );
 
       if (!passcom) {
         return res.status(400).json({ error: "Wrong Password" });
       }
 
-      const date = { user: { id: User.id } };
+      const date = { user: { id: data[0].id } };
       const token = jwt.sign(date, "shhhhh");
       res.json({ token });
     } catch (error) {
