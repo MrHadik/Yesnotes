@@ -7,6 +7,7 @@ const { Schema } = mongoose;
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const { useInsertionEffect } = require("react");
+const connectToMongo = require("../db");
 
 router.post(
   "/creatuser",
@@ -66,11 +67,14 @@ router.post(
       if (!ch) {
         return res.status(400).json({ error: "User Not Found" });
       }
-
-      const passcom = await bcrypt.compare(req.body.passwd, User.passwd);
+      
+      var data = await User.find({email: req.body.email });
+      const pss = data[0].passwd;
+        
+      const passcom = await bcrypt.compare(req.body.passwd,pss );
 
       if (!passcom) {
-        return res.status(400).json({ error: "Worng Password" });
+        return res.status(400).json({ error: "Wrong Password" });
       }
 
       const date = { user: { id: User.id } };
@@ -84,3 +88,4 @@ router.post(
 );
 
 module.exports = router;
+
