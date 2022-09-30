@@ -8,6 +8,7 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const { useInsertionEffect } = require("react");
 const connectToMongo = require("../db");
+const fachauser = require('../middleware/fachauser')
 
 router.post(
   "/creatuser",
@@ -32,21 +33,38 @@ router.post(
       const myPlaintextPassword = req.body.passwd;
       await bcrypt.genSalt(saltRounds, function (err, salt) {
         // console.log(salt);
+        function o(userid) {
+          // console.log(userid)
+          const date = { userid };
+          const token = jwt.sign(date, "H@rd!k#$110");
+          res.json({ token });
+        }
         bcrypt.hash(myPlaintextPassword, salt, function (err, hash) {
           // Store hash in your password DB.
           user = User.create({
             name: req.body.name,
             email: req.body.email,
             passwd: hash,
-          });
-          const date = { user: { id: User.id } };
-          const token = jwt.sign(date, "shhhhh");
-          res.json({ token });
+          }).then((user) => o(user._id)); //functio for data sand to user
         });
       });
     } catch (error) {
-      return res.status(400).json({ errors: error });
+      console.log(error);
+      return res.status(500).json({ errors: error });
     }
+
+    // try {
+    //   var datas = await User.find({email: req.body.email });
+    //   console.log(datas)
+    //   const psss = datas[0].id;
+    //   const date = { user: { id: psss } };
+    //   console.log({ user: { id: psss } });
+    //   const token = jwt.sign(date, "shhhhh");
+    //   res.json({ token });
+    // } catch (error) {
+    //   console.log(error);
+    //   return res.status(500).json({ errors: error });
+    // }
   }
 );
 
@@ -67,18 +85,18 @@ router.post(
       if (!ch) {
         return res.status(400).json({ error: "User Not Found" });
       }
-      
-      var data = await User.find({email: req.body.email });
+
+      var data = await User.find({ email: req.body.email });
       const pss = data[0].passwd;
-        
-      const passcom = await bcrypt.compare(req.body.passwd, pss );
+
+      const passcom = await bcrypt.compare(req.body.passwd, pss);
 
       if (!passcom) {
         return res.status(400).json({ error: "Wrong Password" });
       }
 
       const date = { user: { id: data[0].id } };
-      const token = jwt.sign(date, "shhhhh");
+      const token = jwt.sign(date, "H@rd!k#$110");
       res.json({ token });
     } catch (error) {
       console.log(error);
@@ -87,5 +105,15 @@ router.post(
   }
 );
 
-module.exports = router;
+router.post("/getdata",fachauser, async (req, res) => {
+  try {
+    usid = req.user.id;
+    const user = await User.findById(usid).select('-passwd')
+    res.status(200).sand(user);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+});
 
+module.exports = router;
