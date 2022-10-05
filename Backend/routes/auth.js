@@ -34,7 +34,7 @@ router.post(
       await bcrypt.genSalt(saltRounds, function (err, salt) {
         // console.log(salt);
         function o(userid) {
-          // console.log(userid)
+          // console.log({userid})
           const date = { userid };
           const token = jwt.sign(date, "H@rd!k#$110");
           res.json({ token });
@@ -95,8 +95,8 @@ router.post(
         return res.status(400).json({ error: "Wrong Password" });
       }
 
-      const date = { user: { id: data[0].id } };
-      const token = jwt.sign(date, "H@rd!k#$110");
+      const dates = { userid: data[0]._id };
+      const token = jwt.sign(dates, "H@rd!k#$110");
       res.json({ token });
     } catch (error) {
       console.log(error);
