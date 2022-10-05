@@ -8,10 +8,11 @@ const fachauser =(req,res,next)=>{
     
     try {
         const userdata = jwt.verify(token,"H@rd!k#$110");
-        req.userdata = userdata.user;
+        req.userdata = userdata;
         next();
     } catch (error) {
-        res.status(500).json({ error: "Server Error" });
+        console.log(error)
+        res.status(500).json({ error: "Server Error is rung" });
     }
     
 }

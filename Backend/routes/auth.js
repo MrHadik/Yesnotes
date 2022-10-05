@@ -107,9 +107,9 @@ router.post(
 
 router.post("/getdata",fachauser, async (req, res) => {
   try {
-    usid = req.user.id;
+    const usid = req.userdata.userid;
     const user = await User.findById(usid).select('-passwd')
-    res.status(200).sand(user);
+    res.status(200).json({user});
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Server Error" });
